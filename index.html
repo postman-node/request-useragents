@@ -2,169 +2,236 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Postman API Client - UA Generator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Client | User Agent Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #FFFFFF; --border: #E6E6E6; --blue: #097BED; --orange: #FF6C37; --text: #212121; --sub: #6B6B6B; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        
-        .sidebar { width: 250px; border-right: 1px solid var(--border); background: #F9F9F9; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
-        .main-content { flex: 1; display: flex; flex-direction: column; }
-        
-        .url-section { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; gap: 10px; }
-        .method { border: 1px solid var(--border); padding: 8px 12px; border-radius: 4px; font-weight: 600; color: #0CBB52; font-size: 13px; }
-        .url-input { flex: 1; border: 1px solid var(--border); padding: 8px; border-radius: 4px; font-size: 13px; outline: none; }
-        .send-btn { background: var(--blue); color: white; border: none; padding: 8px 25px; border-radius: 4px; font-weight: 600; cursor: pointer; }
+        :root {
+            --pm-orange: #FF6C37; --pm-blue: #097BED; --pm-green: #0CBB52;
+            --bg: #FFFFFF; --sidebar-bg: #F9F9F9; --border: #E6E6E6;
+            --text-main: #212121; --text-sub: #6B6B6B; --hover: #F2F2F2;
+        }
 
-        .config-area { padding: 20px; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        label { font-size: 11px; font-weight: 600; color: var(--sub); text-transform: uppercase; margin-bottom: 5px; display: block; }
-        select, input { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; outline: none; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; color: var(--text-main); }
         
-        .response-header { padding: 10px 20px; border-bottom: 1px solid var(--border); font-size: 12px; display: flex; justify-content: space-between; background: #FFF; }
-        .response-body { flex: 1; padding: 20px; background: #FAFAFA; overflow-y: auto; }
+        /* Sidebar */
+        .sidebar { width: 280px; border-right: 1px solid var(--border); background: var(--sidebar-bg); padding: 0; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 15px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; color: var(--text-sub); }
+        .sidebar-content { padding: 15px; flex: 1; overflow-y: auto; }
+        .sidebar h4 { font-size: 11px; text-transform: uppercase; color: var(--text-sub); letter-spacing: 0.5px; margin: 15px 0 8px 0; }
+        
+        /* Main Content */
+        .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* URL Bar Section */
+        .url-bar-container { padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; align-items: center; background: #fff; }
+        .method-tag { color: var(--pm-green); font-weight: 700; font-size: 12px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 3px; background: #f8fff9; }
+        .url-input { flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; background: var(--hover); outline: none; color: var(--text-sub); font-family: 'JetBrains Mono', monospace; }
+        .send-btn { background: var(--pm-blue); color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 13px; }
+        .send-btn:hover { background: #0066cc; }
 
-        /* User Agent Card */
-        .ua-card { background: white; border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
-        .ua-card:hover { border-color: var(--blue); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .ua-text { font-family: 'Consolas', monospace; font-size: 12px; color: #0451A5; word-break: break-all; flex: 1; padding-right: 15px; }
-        .copy-btn { background: #E8F2FF; color: var(--blue); border: none; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-        .copy-btn:active { background: var(--blue); color: white; }
+        /* Configuration */
+        .config-bar { display: flex; gap: 30px; padding: 10px 25px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-sub); background: #fff; }
+        .config-item { cursor: pointer; padding-bottom: 5px; border-bottom: 2px solid transparent; }
+        .config-item.active { border-color: var(--pm-orange); color: var(--text-main); font-weight: 500; }
+
+        .params-section { padding: 20px 25px; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .field-box label { font-size: 11px; font-weight: 600; color: var(--text-sub); display: block; margin-bottom: 6px; }
+        select, input[type="number"] { padding: 7px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; outline: none; width: 100%; background: #fff; }
+
+        /* Response Header */
+        .res-header { padding: 10px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 12px; color: var(--text-sub); }
+        .status-pill { color: var(--pm-green); font-weight: 600; background: #e6f4ea; padding: 2px 8px; border-radius: 10px; }
+
+        /* Results Display */
+        .res-body { flex: 1; padding: 20px; background: #fafafa; overflow-y: auto; }
+        .ua-entry { background: #ffffff; border: 1px solid var(--border); border-radius: 4px; padding: 12px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-start; transition: box-shadow 0.2s; }
+        .ua-entry:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-color: #d1d1d1; }
+        
+        .ua-content { flex: 1; padding-right: 20px; }
+        .ua-meta { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 6px; display: flex; gap: 10px; }
+        .ua-meta span.highlight { color: var(--pm-blue); }
+        .ua-string { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #222; line-height: 1.5; word-break: break-all; }
+        
+        .copy-action { background: #fff; border: 1px solid #d1d1d1; color: var(--text-main); padding: 5px 12px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; transition: 0.2s; align-self: center; }
+        .copy-action:hover { background: var(--pm-blue); color: #fff; border-color: var(--pm-blue); }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #d1d1d1; border-radius: 10px; }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <label>Device Brand Selection</label>
-    <select id="brandSelect" size="15">
-        <option value="Samsung" selected>Samsung Galaxy</option>
-        <option value="Google">Google Pixel</option>
-        <option value="Xiaomi">Xiaomi / Redmi</option>
-        <option value="OnePlus">OnePlus</option>
-        <option value="Oppo">Oppo</option>
-        <option value="Vivo">Vivo</option>
-        <option value="Huawei">Huawei</option>
-        <option value="Asus">Asus ROG</option>
-        <option value="Sony">Sony Xperia</option>
-        <option value="Motorola">Motorola</option>
-        <option value="Realme">Realme</option>
-        <option value="Nokia">Nokia Android</option>
-        <option value="LG">LG Velvet/V</option>
-        <option value="ZTE">ZTE Nubia</option>
-        <option value="Infinix">Infinix Note</option>
-    </select>
+    <div class="sidebar-header">Collections</div>
+    <div class="sidebar-content">
+        <div style="font-size: 13px; font-weight: 500; margin-bottom: 10px;">📁 My Workspace</div>
+        <div style="font-size: 12px; color: var(--pm-blue); padding-left: 15px; border-left: 2px solid var(--pm-blue);">GET User Agent Generator</div>
+        
+        <h4>Device Pool Configuration</h4>
+        <select id="brandSelect" size="15" style="height: 350px;">
+            <optgroup label="Popular Brands">
+                <option value="Samsung" selected>Samsung Galaxy Series</option>
+                <option value="Google">Google Pixel Series</option>
+                <option value="Xiaomi">Xiaomi / Redmi / Poco</option>
+                <option value="OnePlus">OnePlus Flagships</option>
+            </optgroup>
+            <optgroup label="Other Manufacturers">
+                <option value="Oppo">Oppo Reno & Find</option>
+                <option value="Vivo">Vivo V & X Series</option>
+                <option value="Huawei">Huawei Mate & P</option>
+                <option value="Asus">Asus ROG & Zenfone</option>
+                <option value="Sony">Sony Xperia</option>
+                <option value="Realme">Realme GT Series</option>
+                <option value="Motorola">Motorola Edge</option>
+                <option value="Infinix">Infinix Note</option>
+                <option value="Tecno">Tecno Camon</option>
+                <option value="Nokia">Nokia Android</option>
+                <option value="ZTE">ZTE Nubia</option>
+            </optgroup>
+        </select>
+    </div>
 </div>
 
-<div class="main-content">
-    <div class="url-section">
-        <div class="method">GET</div>
-        <input type="text" class="url-input" value="https://api.generator.io/v1/generate-user-agents?bypass=true">
+<div class="main">
+    <div class="url-bar-container">
+        <div class="method-tag">GET</div>
+        <input type="text" class="url-input" value="https://internal-api.local/v1/user-agents/generate?stealth=true" readonly>
         <button class="send-btn" onclick="generate()">Send</button>
     </div>
 
-    <div class="config-area">
-        <div>
-            <label>Target Platform</label>
+    <div class="config-bar">
+        <div class="config-item active">Params</div>
+        <div class="config-item">Authorization</div>
+        <div class="config-item">Headers (12)</div>
+        <div class="config-item">Body</div>
+        <div class="config-item">Settings</div>
+    </div>
+
+    <div class="params-section">
+        <div class="field-box">
+            <label>Platform Target</label>
             <select id="platformSelect">
-                <option value="CHROME">Chrome Mobile (Normal)</option>
-                <option value="FB_IAB">Facebook In-App</option>
+                <option value="FB_IAB">Facebook In-App Browser</option>
                 <option value="FB_LITE">Facebook Lite</option>
-                <option value="TIKTOK">TikTok Mobile</option>
-                <option value="TELEGRAM">Telegram Android</option>
-                <option value="SNAPCHAT">Snapchat</option>
+                <option value="TIKTOK">TikTok Mobile App</option>
+                <option value="TELEGRAM">Telegram Messenger</option>
+                <option value="SNAPCHAT">Snapchat Android</option>
                 <option value="LINKEDIN">LinkedIn In-App</option>
+                <option value="CHROME" selected>Chrome Mobile (Standard)</option>
+                <option value="X">X (Twitter) Mobile</option>
             </select>
         </div>
-        <div style="display: flex; gap: 10px;">
-            <div style="flex: 1;">
-                <label>Quantity</label>
-                <input type="number" id="qty" value="10">
-            </div>
-            <div style="flex: 1;">
-                <label>Chrome Ver (130-145)</label>
-                <input type="text" id="vRange" value="130-145">
-            </div>
+        <div class="field-box">
+            <label>Chrome Browser Version</label>
+            <select id="verSelect">
+                <option value="145">Version 145.0.x (Stable)</option>
+                <option value="142">Version 142.0.x</option>
+                <option value="140">Version 140.0.x</option>
+                <option value="135">Version 135.0.x</option>
+                <option value="130">Version 130.0.x</option>
+                <option value="RANDOM">Randomize (130-145)</option>
+            </select>
+        </div>
+        <div class="field-box">
+            <label>Request Quantity</label>
+            <input type="number" id="qty" value="10" min="1" max="100">
         </div>
     </div>
 
-    <div class="response-header">
-        <div><b>Body</b> &nbsp; Cookies &nbsp; Headers</div>
-        <div>Status: <span style="color: #0CBB52; font-weight: 600;">200 OK</span> &nbsp; Time: <span id="time">0ms</span></div>
+    <div class="res-header">
+        <div>Body &nbsp;&nbsp; Cookies &nbsp;&nbsp; Headers &nbsp;&nbsp; Test Results</div>
+        <div>Status: <span class="status-pill">200 OK</span> &nbsp;&nbsp; Time: <span id="timeLabel" style="color: var(--pm-green);">0 ms</span></div>
     </div>
 
-    <div class="response-body" id="output">
-        <div style="color: var(--sub); text-align: center; margin-top: 50px;">Click 'Send' to generate bypassed user agents.</div>
+    <div class="res-body" id="output">
+        <div style="text-align: center; color: #bbb; margin-top: 60px;">
+            <div style="font-size: 40px; margin-bottom: 10px;">⚡</div>
+            Hit <b>Send</b> to generate high-entropy user agents.
+        </div>
     </div>
 </div>
 
 <script>
-    // මචං, මෙතනට ඔයාට ඕනෙ තරම් Devices ලේසියෙන්ම ඇඩ් කරගන්න පුළුවන්.
+    // Detailed Device Pool (Easy to add more here)
     const deviceModels = {
-        'Samsung': ['SM-S901B', 'SM-S918B', 'SM-G998B', 'SM-A525F', 'SM-N986B', 'SM-S22ULTRA'],
-        'Google': ['Pixel 8 Pro', 'Pixel 7a', 'Pixel 6', 'Pixel 5', 'Pixel Fold'],
-        'Xiaomi': ['M2101K6G', 'Redmi Note 12', 'Poco F5', 'Xiaomi 13 Ultra'],
-        'OnePlus': ['CPH2449', 'LE2113', 'NE2213', 'OnePlus 11'],
-        'Oppo': ['Find X6 Pro', 'Reno 10 Pro', 'CPH2207'],
-        'Vivo': ['V2202', 'Vivo X100 Pro', 'V2105'],
-        'Huawei': ['P60 Pro', 'Mate 50 Pro', 'VOG-L29'],
-        'Asus': ['ROG Phone 7', 'ZenFone 10'],
-        'Sony': ['Xperia 1 V', 'Xperia 5 IV'],
-        'Motorola': ['Edge 40 Pro', 'Moto G84'],
-        'Realme': ['RMX3741', 'Realme GT 5'],
+        'Samsung': ['SM-S928B', 'SM-S911B', 'SM-G998B', 'SM-A546B', 'SM-M536B', 'SM-S24ULTRA', 'SM-S23PLUS'],
+        'Google': ['Pixel 8 Pro', 'Pixel 7a', 'Pixel 6 Pro', 'Pixel Fold', 'Pixel 8a'],
+        'Xiaomi': ['Xiaomi 14 Ultra', '23117RK66C', 'Poco F5 Pro', 'Redmi Note 13 Pro+'],
+        'OnePlus': ['OnePlus 12', 'CPH2581', 'LE2113', 'OnePlus Nord 3'],
+        'Oppo': ['Find X7 Ultra', 'CPH2521', 'Reno 11 Pro'],
+        'Vivo': ['Vivo X100 Pro', 'V2303', 'Vivo V29'],
+        'Huawei': ['P60 Pro', 'Mate 60 Pro', 'ALN-AL80'],
+        'Asus': ['ROG Phone 8', 'ZenFone 10', 'AI2401'],
+        'Sony': ['Xperia 1 V', 'Xperia 5 V', 'XQ-DQ72'],
+        'Realme': ['Realme GT 5', 'RMX3851', 'Realme 12 Pro+'],
+        'Motorola': ['Edge 40 Pro', 'Moto G84', 'XT2301-4'],
+        'Infinix': ['Infinix Zero 30', 'X6731', 'Note 40 Pro'],
+        'Tecno': ['Tecno Camon 30', 'KJ6'],
         'Nokia': ['Nokia G42', 'Nokia X30'],
-        'LG': ['LG Velvet', 'LG V60 ThinQ'],
-        'ZTE': ['Nubia Z50', 'Axon 40'],
-        'Infinix': ['Infinix Note 30', 'Zero Ultra']
+        'ZTE': ['Nubia Z60 Ultra', 'NX721J']
     };
 
     function generate() {
         const brand = document.getElementById('brandSelect').value;
         const platform = document.getElementById('platformSelect').value;
         const qty = parseInt(document.getElementById('qty').value);
-        const vRange = document.getElementById('vRange').value.split('-');
-        const vMin = parseInt(vRange[0]);
-        const vMax = parseInt(vRange[1]);
-        const startTime = performance.now();
-
+        const verInput = document.getElementById('verSelect').value;
+        const start = performance.now();
+        
+        const models = deviceModels[brand] || ['Android-Device'];
         let html = "";
-        const models = deviceModels[brand];
 
         for(let i=0; i<qty; i++) {
             const model = models[Math.floor(Math.random() * models.length)];
-            const chrome = `${Math.floor(Math.random() * (vMax - vMin + 1)) + vMin}.0.${Math.floor(Math.random()*3000)+4000}.${Math.floor(Math.random()*150)}`;
-            const android = Math.floor(Math.random() * 5) + 10;
-            const build = `TP1A.${Math.floor(Math.random()*900000)+100000}.014`;
+            const chromeBase = (verInput === "RANDOM") ? Math.floor(Math.random() * 16) + 130 : verInput;
+            const chromeFull = `${chromeBase}.0.${Math.floor(Math.random()*2000)+4000}.${Math.floor(Math.random()*150)}`;
+            const android = Math.floor(Math.random() * 4) + 11; 
+            const build = `TP1A.${Math.floor(Math.random()*800000)+100000}.014`;
 
-            let ua = `Mozilla/5.0 (Linux; Android ${android}; ${model} Build/${build}; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/${chrome} Mobile Safari/537.36`;
+            let ua = `Mozilla/5.0 (Linux; Android ${android}; ${model} Build/${build}; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/${chromeFull} Mobile Safari/537.36`;
 
-            if(platform === 'FB_IAB') ua += ` [FB_IAB/FB4A;FBAV/440.0.0.31.114;]`;
+            // App Injection
+            if(platform === 'FB_IAB') ua += ` [FB_IAB/FB4A;FBAV/${Math.floor(Math.random()*40)+440}.0.0.31.114;]`;
             if(platform === 'FB_LITE') ua += ` [FBAN/MessengerLite;FBAV/320.0.0.1.1;]`;
-            if(platform === 'TIKTOK') ua += ` TikTok 28.1.3 rv:28103`;
-            if(platform === 'TELEGRAM') ua += ` Telegram-Android/10.1.1 (${brand} ${model}; Android ${android})`;
-            if(platform === 'SNAPCHAT') ua += ` Snapchat/12.1.0.1 (Device:${model}; OS:${android};)`;
+            if(platform === 'TIKTOK') ua += ` TikTok 30.${Math.floor(Math.random()*9)}.0 rv:30101`;
+            if(platform === 'TELEGRAM') ua += ` Telegram-Android/10.5.0 (${brand} ${model}; Android ${android})`;
+            if(platform === 'SNAPCHAT') ua += ` Snapchat/12.60.0.1 (Device:${model}; OS:${android};)`;
             if(platform === 'LINKEDIN') ua += ` [LinkedInApp;]`;
+            if(platform === 'X') ua += ` [TwitterAndroid;10.20.0-release.0]`;
 
             html += `
-                <div class="ua-card">
-                    <div class="ua-text">${ua}</div>
-                    <button class="copy-btn" onclick="copyToClipboard(this, '${ua}')">COPY</button>
+                <div class="ua-entry">
+                    <div class="ua-content">
+                        <div class="ua-meta">
+                            <span>Platform: <span class="highlight">${platform}</span></span>
+                            <span>OS: <span class="highlight">Android ${android}</span></span>
+                            <span>Engine: <span class="highlight">Chrome ${chromeBase}</span></span>
+                        </div>
+                        <div class="ua-string">${ua}</div>
+                    </div>
+                    <button class="copy-action" onclick="copyUA(this, '${ua}')">Copy</button>
                 </div>`;
         }
 
         document.getElementById('output').innerHTML = html;
-        document.getElementById('time').innerText = Math.round(performance.now() - startTime) + "ms";
+        document.getElementById('timeLabel').innerText = Math.round(performance.now() - start) + " ms";
     }
 
-    function copyToClipboard(btn, text) {
+    function copyUA(btn, text) {
         navigator.clipboard.writeText(text);
-        const originalText = btn.innerText;
-        btn.innerText = "COPIED!";
+        const original = btn.innerText;
+        btn.innerText = "Copied";
         btn.style.background = "#0CBB52";
-        btn.style.color = "white";
+        btn.style.color = "#fff";
+        btn.style.borderColor = "#0CBB52";
         setTimeout(() => {
-            btn.innerText = originalText;
-            btn.style.background = "#E8F2FF";
-            btn.style.color = "#097BED";
-        }, 1000);
+            btn.innerText = original;
+            btn.style.background = "#fff";
+            btn.style.color = "#212121";
+            btn.style.borderColor = "#d1d1d1";
+        }, 800);
     }
 </script>
 
